@@ -50,36 +50,63 @@ const createNewTransaction = () => {
 	newTransaction.classList.add('transaction')
 	newTransaction.setAttribute('id', ID)
 
+	checkCategory(selectedCategory)
+
 	newTransaction.innerHTML = `
         <p class="transaction-name">${categoryIcon} ${nameInput.value}</p>
-        <p class="transaction-amount">${amountInput.value} zł <button class="delete" onclick="deleteTransaction(ID)"><i
+        <p class="transaction-amount">${amountInput.value} zł <button class="delete" onclick="deleteTransaction(${ID})"><i
                     class="fas fa-times"></i></button></p>
     </div>`
 
 	amountInput.value > 0
-		? incomeSection.append(newTransaction) && newTransaction.classList.add('income')
-		: expensesSection.append(newTransaction) && newTransaction.classList.add('expense')
+		? incomeSection.appendChild(newTransaction) && newTransaction.classList.add('income')
+		: expensesSection.appendChild(newTransaction) && newTransaction.classList.add('expense')
 
-	moneyArr.push(parseFloat[amountInput.value])
-
+	moneyArr.push(parseFloat(amountInput.value))
+	countMoney(moneyArr)
 	closePanel()
-    ID++
+	ID++
 }
 
-// const checkCategory = () => {
-//     switch (selectedCategory.options[selectedCategory.selectedIndex].value) {
-//         case 'income' : categoryIcon.innerHTML='<i class="fas fa-money-bill-wave"></i>'
-//         break
-//         case 'shopping' : categoryIcon.innerHTML='<i class="fas fa-cart-arrow-down"></i>'
-//         break
-//         case 'food' : categoryIcon.innerHTML='<i class="fas fa-hamburger"></i>'
-//         break
-//         case 'cinema' : categoryIcon.innerHTML='<i class="fas fa-film"></i>'
-//     }
-// }
+const selectCategory = () => {
+	selectedCategory = categorySelect.options[categorySelect.selectedIndex].text
+}
 
+const checkCategory = transaction => {
+	switch (transaction) {
+		case '[ + ] Przychód':
+			categoryIcon = '<i class="fas fa-money-bill-wave"></i>'
+			break
+		case '[ - ] Zakupy':
+			categoryIcon = '<i class="fas fa-cart-arrow-down"></i>'
+			break
+		case '[ - ] Jedzenie':
+			categoryIcon = '<i class="fas fa-hamburger"></i>'
+			break
+		case '[ - ] Kino':
+			categoryIcon = '<i class="fas fa-film"></i>'
+			break
+	}
+}
 
+const countMoney = money => {
+	const newMoney = money.reduce((a, b) => a + b)
+	availableMoney.textContent = `${newMoney} zł`
+}
 
+const deleteTransaction = id => {
+	const transactionToDelete = document.getElementById(id)
+	console.log(transactionToDelete);
+	const transactionAmount = parseFloat(transactionToDelete.childNodes[3].innerText)
+	const indexOfTransaction = moneyArr.indexOf(transactionAmount)
+
+	moneyArr.splice(indexOfTransaction, 1)
+
+	transactionToDelete.classList.contains('income')
+		? incomeSection.removeChild(transactionToDelete)
+		: expensesSection.removeChild(transactionToDelete)
+	countMoney(moneyArr)
+}
 
 addTransactionBtn.addEventListener('click', showPanel)
 cancelBtn.addEventListener('click', closePanel)
